@@ -1,0 +1,16 @@
+{
+  "name": "vidora",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Vidora — estudio de creación de video con IA local (Ollama) y copiloto de escritorio.",
+  "scripts": {
+    "dev": "npm --prefix apps/web run dev",
+    "build": "npm --prefix apps/web run build",
+    "preview": "npm --prefix apps/web run preview",
+    "desktop": "npm --prefix apps/desktop run dev",
+    "desktop:build": "npm --prefix apps/desktop run dist",
+    "install:all": "npm --prefix apps/web install && npm --prefix apps/desktop install"
+  },
+  "keywords": ["video", "ai", "ollama", "editor", "runway", "electron"],
+  "license": "MIT"
+}
