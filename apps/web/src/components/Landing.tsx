@@ -449,7 +449,7 @@ export default function Landing({
         </div>
         <div className="footer-cols">
           <div><strong>Producto</strong><a href="#producto">Funciones</a><a href="#estudio">Estudio</a><a href="#plantillas">Plantillas</a><a href="#escritorio">Escritorio</a></div>
-          <div><strong>Recursos</strong><a href="https://ollama.com" target="_blank" rel="noreferrer">Ollama</a><a href="https://github.com" target="_blank" rel="noreferrer">GitHub</a><a href="#faq">FAQ</a></div>
+          <div><strong>Recursos</strong><a href="https://ollama.com" target="_blank" rel="noreferrer">Ollama</a><a href="https://github.com/manuelbustosrey-png/vidora" target="_blank" rel="noreferrer">GitHub</a><a href="#faq">FAQ</a></div>
           <div><strong>Privacidad</strong><span>Sin telemetría</span><span>Datos en tu navegador</span><span>Sin claves API</span></div>
         </div>
         <div className="footer-bottom">

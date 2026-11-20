@@ -3,7 +3,7 @@ const path = require('node:path');
 const fs = require('node:fs');
 
 const DEFAULT_SETTINGS = {
-  studioUrl: 'http://127.0.0.1:5173/',
+  studioUrl: 'https://manuelbustosrey-png.github.io/vidora/',
   host: 'http://127.0.0.1:11434',
   model: 'llama3.2',
   temperature: 0.7

@@ -56,13 +56,13 @@ En el estudio:
 
 ### 2. Copiloto de escritorio
 
-Con el servidor web en marcha, en otra terminal:
+En otra terminal (no necesita el servidor local si usas el estudio publicado):
 
 ```bash
 npm run desktop
 ```
 
-La app de escritorio abre el estudio embebido y un chat lateral. El copiloto puede cambiar la duración, añadir escenas, colocar texto, ajustar la música, reproducir, pausar, exportar, crear proyectos o lanzar una generación. Los comandos se envían al estudio mediante un puente `postMessage` aislado.
+La app de escritorio abre el estudio embebido y un chat lateral. Por defecto carga el estudio publicado en `https://manuelbustosrey-png.github.io/vidora/`; para trabajar contra el servidor local cambia **Ajustes → URL del estudio** a `http://127.0.0.1:5173/`. El copiloto puede cambiar la duración, añadir escenas, colocar texto, ajustar la música, reproducir, pausar, exportar, crear proyectos o lanzar una generación. Los comandos se envían al estudio mediante un puente `postMessage` aislado.
 
 Sin Ollama, el copiloto usa el **director local** y sigue ejecutando acciones.
 
