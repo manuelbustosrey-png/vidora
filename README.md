@@ -208,6 +208,34 @@ vidora/
 - La duración máxima configurable es de 10 horas por proyecto; la exportación admite hasta 600 minutos por archivo.
 - Los instaladores de escritorio no están firmados: Windows SmartScreen o macOS Gatekeeper pueden pedir confirmación.
 
+## Solución de problemas
+
+### El copiloto no conecta con el estudio
+
+- Comprueba que `npm run dev` esté en marcha y que `http://127.0.0.1:5173/` abra en el navegador.
+- En **Ajustes → URL del estudio**, usa la URL correcta (local o la de GitHub Pages).
+- La primera carga tras arrancar Vite puede tardar unos segundos mientras optimiza dependencias.
+
+### Electron no arranca o falta el binario
+
+Algunas versiones de npm bloquean los scripts de instalación. Si `npm run desktop` falla porque no encuentra Electron:
+
+```bash
+cd apps/desktop
+node node_modules/electron/install.js
+npx electron --version
+```
+
+### Ollama no aparece
+
+- Verifica `http://localhost:11434/api/tags` en el navegador.
+- En desarrollo, Vidora usa el proxy `/ollama`; si cambiaste el endpoint a `http://localhost:11434`, asegúrate de que Ollama acepta peticiones del origen del estudio (`OLLAMA_ORIGINS=*`).
+- Sin Ollama, el director local sigue funcionando: la app lo indica con el aviso «Ollama no detectado».
+
+### La exportación va lenta o se corta
+
+La grabación es en tiempo real. Mantén la pestaña visible, cierra pestañas que consuman CPU y elige una resolución menor si el equipo no sostiene 4K/60.
+
 ## Licencia
 
 MIT © 2026 Vidora.
