@@ -1,6 +1,6 @@
 import { Copy, Download, Film, Image, Layers, Music, RotateCcw, Scissors, Sparkles, Trash2, Type as TypeIcon } from 'lucide-react';
 import type { Clip, SceneTemplate, TextAnimation } from '@/types';
-import { ASPECTS } from '@/types';
+import { ASPECTS, MUSIC_MOOD_LABELS, MUSIC_MOODS } from '@/types';
 import { useEditor } from '@/store/editor';
 import { downloadBlob, formatClock } from '@/lib/utils';
 import { renderThumbnail } from '@/engine/renderer';
@@ -113,11 +113,7 @@ export default function Inspector() {
             <div className="switch-row"><span>Activar banda sonora</span><Toggle checked={project.music.enabled} onChange={(v) => setMusic({ enabled: v })} /></div>
             <label className="field"><span className="field-label">Ambiente</span>
               <select value={project.music.mood} onChange={(e) => setMusic({ mood: e.target.value as typeof project.music.mood })}>
-                <option value="cinematic">Cinematográfico</option>
-                <option value="ambient">Ambient</option>
-                <option value="lofi">Lo-fi</option>
-                <option value="epic">Épico</option>
-                <option value="electronic">Electrónico</option>
+                {MUSIC_MOODS.map((m) => <option key={m} value={m}>{MUSIC_MOOD_LABELS[m]}</option>)}
               </select>
             </label>
             <label className="field"><span className="field-label">Volumen</span>

@@ -15,8 +15,9 @@ import {
   X,
 } from 'lucide-react';
 import type { AgentAction } from '@/lib/ai';
-import { generateStoryboard } from '@/lib/ai';
-import type { AspectId, DesktopCommand, Project, SceneTemplate, Storyboard, TextClip } from '@/types';
+import { generateStoryboard, LANDMARKS } from '@/lib/ai';
+import type { AspectId, DesktopCommand, MusicMood, Project, SceneClip, SceneTemplate, Storyboard, TextClip } from '@/types';
+import { MUSIC_MOODS } from '@/types';
 import { useEditor } from '@/store/editor';
 import { useSettings } from '@/store/settings';
 import { getProject, saveProject } from '@/lib/storage';
@@ -314,6 +315,11 @@ export default function Studio({
             toast(`Duración ajustada a ${action.minutes} minutos`, 'success');
           }
           break;
+        case 'generate':
+          if (action.prompt) {
+            void runGeneration(action.prompt, action.minutes || Math.max(1, Math.round(p.duration / 60)), (action.aspect as AspectId) || p.aspect);
+          }
+          break;
         case 'add_scene': {
           const template = (action.template as SceneTemplate) || (action.mood as SceneTemplate) || 'aurora';
           addSceneAtPlayhead(
@@ -328,8 +334,22 @@ export default function Studio({
           if (action.text) addTextAtPlayhead({ label: 'Texto IA', data: { fontSize: 64, fontFamily: 'Sora', y: 0.5 } }, action.text);
           break;
         case 'set_mood':
-          if (action.mood) setMusic({ mood: action.mood as Project['music']['mood'], enabled: true });
+          if (action.mood && MUSIC_MOODS.includes(action.mood as MusicMood)) {
+            setMusic({ mood: action.mood as MusicMood, enabled: true });
+          }
           break;
+        case 'set_landscape': {
+          const land = LANDMARKS.find((l) => l.id === action.landscape);
+          if (!land) break;
+          const sceneClips = p.clips.filter((c) => c.kind === 'scene') as SceneClip[];
+          sceneClips.forEach((c, i) => useEditor.getState().updateClip(c.id, {
+            template: land.templates[i % land.templates.length],
+            palette: land.palettes[i % land.palettes.length],
+          }));
+          setMusic({ mood: land.defaultMood, enabled: true });
+          toast(`Reformo el paisaje a ${land.label}`, 'success');
+          break;
+        }
         case 'play': useEditor.getState().setPlaying(true); break;
         case 'pause': useEditor.getState().setPlaying(false); break;
         case 'export': setExportOpen(true); break;
@@ -337,7 +357,7 @@ export default function Studio({
           toast(`Acción desconocida: ${action.type}`, 'warning');
       }
     },
-    [addSceneAtPlayhead, addTextAtPlayhead, setDuration, setMusic]
+    [addSceneAtPlayhead, addTextAtPlayhead, runGeneration, setDuration, setMusic]
   );
 
   // Desktop commands
@@ -352,6 +372,14 @@ export default function Studio({
             toast(`Duración: ${payload.minutes} min`, 'success');
           }
           break;
+        case 'generate': {
+          const prompt = String(payload.prompt || '').trim();
+          if (prompt) {
+            const st = useEditor.getState();
+            void runGeneration(prompt, Number(payload.minutes) || 2, ((String(payload.aspect) || '') || (st.project?.aspect ?? '16:9')) as AspectId);
+          }
+          break;
+        }
         case 'play': useEditor.getState().setPlaying(true); break;
         case 'pause': useEditor.getState().setPlaying(false); break;
         case 'export': setExportOpen(true); break;
@@ -364,15 +392,31 @@ export default function Studio({
           break;
         }
         case 'set_mood':
-          setMusic({ mood: String(payload.mood || 'cinematic') as Project['music']['mood'], enabled: true });
+          if (payload.mood && MUSIC_MOODS.includes(String(payload.mood) as MusicMood)) {
+            setMusic({ mood: String(payload.mood) as MusicMood, enabled: true });
+          }
           break;
+        case 'set_landscape': {
+          const land = LANDMARKS.find((l) => l.id === String(payload.landscape || ''));
+          const p = useEditor.getState().project;
+          if (land && p) {
+            const sceneClips = p.clips.filter((c) => c.kind === 'scene') as SceneClip[];
+            sceneClips.forEach((c, i) => useEditor.getState().updateClip(c.id, {
+              template: land.templates[i % land.templates.length],
+              palette: land.palettes[i % land.palettes.length],
+            }));
+            setMusic({ mood: land.defaultMood, enabled: true });
+            toast(`Reformo el paisaje a ${land.label}`, 'success');
+          }
+          break;
+        }
         default:
           break;
       }
     };
     window.addEventListener('vidora:command', handler);
     return () => window.removeEventListener('vidora:command', handler);
-  }, [addSceneAtPlayhead, addTextAtPlayhead, setDuration, setMusic]);
+  }, [addSceneAtPlayhead, addTextAtPlayhead, runGeneration, setDuration, setMusic]);
 
   // Keyboard shortcuts
   useEffect(() => {

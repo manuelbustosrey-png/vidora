@@ -174,7 +174,22 @@
 .text-preset em { display: block; font-style: normal; font-size: 8px; color: var(--dim); }
 .text-preset > svg { color: var(--dim); }
 
-.mood-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-bottom: 10px; }
+.detection-card {
+  margin: 8px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  font-size: 9.5px;
+  color: var(--muted);
+  line-height: 1.5;
+  border: 1px dashed var(--line);
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+.detection-card .det-tag { color: var(--accent); margin-right: 2px; }
+.detection-card strong { color: var(--fg-2, #d9d6d0); }
+.detection-card em { color: var(--muted); opacity: 0.7; }
+.mood-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(58px, 1fr)); gap: 4px; margin-bottom: 10px; }
 .mood-card { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 7px 2px 5px; border: 1px solid var(--line); border-radius: 6px; font-size: 8px; color: var(--dim); }
 .mood-card:hover { border-color: var(--line-2); color: #d8d4cb; }
 .mood-card.active { border-color: rgba(52, 211, 153, 0.45); background: rgba(52, 211, 153, 0.07); color: #9defc8; }

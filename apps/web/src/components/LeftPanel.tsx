@@ -16,6 +16,7 @@ import {
   RefreshCw,
   Settings,
   Sparkles,
+  Target,
   Type as TypeIcon,
   Upload,
   Volume2,
@@ -23,9 +24,9 @@ import {
   Zap,
 } from 'lucide-react';
 import type { AgentAction } from '@/lib/ai';
-import { buildCaptionClips, demoAgentReply, generateSeo, improvePrompt, extractActions } from '@/lib/ai';
+import { analyzePrompt, localAgentReply, buildCaptionClips, generateSeo, improvePrompt, extractActions } from '@/lib/ai';
 import type { AiSettings, AssetMeta, AspectId, Clip, SceneTemplate, Storyboard, TextClip, TrackType } from '@/types';
-import { ASPECTS } from '@/types';
+import { ASPECTS, MUSIC_MOOD_LABELS, MUSIC_MOODS } from '@/types';
 import { useEditor } from '@/store/editor';
 import { useSettings } from '@/store/settings';
 import { listModels } from '@/lib/ollama';
@@ -203,6 +204,8 @@ export default function LeftPanel({
   }, [project?.id]);
 
   const scenes = useMemo(() => project?.clips.filter((c) => c.kind === 'scene') || [], [project?.clips]);
+  const detection = useMemo(() => analyzePrompt(prompt), [prompt]);
+
 
   if (!project) return null;
 
@@ -260,14 +263,15 @@ export default function LeftPanel({
     abortRef.current = ctrl;
 
     if (conn.state !== 'on') {
-      const reply = demoAgentReply(text);
+      const local = localAgentReply(text);
       setMessages((prev) => {
         const copy = [...prev];
         const last = copy[copy.length - 1];
-        if (last?.pending) copy[copy.length - 1] = { role: 'assistant', content: reply };
+        if (last?.pending) copy[copy.length - 1] = { role: 'assistant', content: local.text };
         return copy;
       });
       setThinking(false);
+      local.actions.forEach((action) => onAgentAction(action));
       return;
     }
 
@@ -279,7 +283,8 @@ Puedes ejecutar acciones reales sobre el proyecto. Si el usuario pide algo que c
 \`\`\`json
 {"action":"set_duration","minutes":3}
 \`\`\`
-Acciones válidas: set_duration (minutes), add_scene (template: aurora|nebula|grid|particles|waves|spotlight|skyline|editorial, title), add_text (text), set_mood (mood: cinematic|ambient|lofi|epic|electronic), play, pause, export.
+Acciones válidas: set_duration (minutes), add_scene (template: aurora|nebula|grid|particles|waves|spotlight|skyline|editorial, title), add_text (text), set_mood (mood: ${MUSIC_MOODS.join('|')}), play, pause, export.
+Acción especial: set_landscape {landscape: id} para reformar plantilla, paleta y atmósfera cuando el usuario pide un paisaje específico (playa, desierto, montaña, bosque, ciudad, espacio, pampa, retrato, boda…).
 No inventes acciones fuera de la lista. No uses bloques json si no vas a ejecutar nada.
 Estado del proyecto:
 ${context}`,
@@ -315,13 +320,15 @@ ${context}`,
       });
       for (const action of actions) onAgentAction(action);
     } catch (e) {
+      const local = localAgentReply(text);
       setMessages((prev) => {
         const copy = [...prev];
         const last = copy[copy.length - 1];
-        if (last) copy[copy.length - 1] = { role: 'assistant', content: demoAgentReply(text), error: true };
+        if (last) copy[copy.length - 1] = { role: 'assistant', content: local.text, error: true };
         return copy;
       });
       toast(`IA local: ${(e as Error).message}`, 'warning');
+      local.actions.forEach((action) => onAgentAction(action));
     } finally {
       setThinking(false);
       abortRef.current = null;
@@ -441,6 +448,18 @@ ${context}`,
                 <button className="link-btn" onClick={quickImprove} disabled={improving}>{improving ? 'Mejorando…' : 'Mejorar prompt'}</button>
                 <button className="link-btn" onClick={() => { setPrompt('Una historia visual sobre '); }}>Empezar de cero</button>
               </div>
+              {prompt.trim() && (
+                <div className="detection-card">
+                  <span className="det-tag"><Target size={12} /></span>
+                  <strong>Paisaje:</strong> {detection.landscapeLabel || 'Sin especificar'}
+                  <em>·</em>
+                  <span><AudioLines size={12} /></span>
+                  <strong>Música:</strong> {detection.moodLabel}
+                  <em>·</em>
+                  <span><Clapperboard size={12} /></span>
+                  <strong>Plantillas:</strong> {detection.templates.slice(0, 3).join(' · ') || 'basadas en el género'}
+                </div>
+              )}
               {lastStoryboard && (
                 <div className="storyboard-summary">
                   <div className="sb-head">
@@ -575,10 +594,10 @@ ${context}`,
           <div className="panel-section">
             <div className="section-title"><Music size={15} /> Música generativa</div>
             <div className="mood-grid">
-              {(['cinematic', 'ambient', 'lofi', 'epic', 'electronic'] as const).map((m) => (
+              {MUSIC_MOODS.map((m) => (
                 <button key={m} className={`mood-card ${project.music.mood === m ? 'active' : ''}`} onClick={() => setMusic({ mood: m, enabled: true })}>
                   <span className="mood-bars">{[0, 1, 2, 3].map((i) => <i key={i} style={{ height: `${30 + ((i * 17) % 60)}%` }} />)}</span>
-                  <span>{m === 'cinematic' ? 'Cine' : m === 'ambient' ? 'Ambient' : m === 'lofi' ? 'Lo-fi' : m === 'epic' ? 'Épico' : 'Electro'}</span>
+                  <span>{MUSIC_MOOD_LABELS[m]}</span>
                 </button>
               ))}
             </div>

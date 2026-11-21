@@ -18,6 +18,9 @@ interface MoodConfig {
   cutoff: number;
   pad: number;
   detune: number;
+  drums?: boolean;
+  arp?: boolean;
+  reverse?: boolean;
 }
 
 const MOODS: Record<Mood, MoodConfig> = {
@@ -90,6 +93,75 @@ const MOODS: Record<Mood, MoodConfig> = {
     cutoff: 1800,
     pad: 0.22,
     detune: 5,
+    drums: true,
+    arp: true,
+  },
+  rock: {
+    bpm: 92,
+    bars: [
+      [55, 60, 64],
+      [52, 57, 60],
+      [55, 59, 62],
+      [53, 57, 60],
+    ],
+    bass: [43, 48, 50, 45],
+    wave: 'square',
+    cutoff: 2200,
+    pad: 0.34,
+    detune: 8,
+    drums: true,
+    arp: true,
+    reverse: true,
+  },
+  jazz: {
+    bpm: 100,
+    bars: [
+      [55, 59, 62],
+      [52, 55, 59],
+      [50, 52, 55],
+      [53, 57, 60],
+    ],
+    bass: [41, 45, 47, 38],
+    wave: 'triangle',
+    cutoff: 1100,
+    pad: 0.3,
+    detune: 6,
+    drums: false,
+    arp: true,
+    reverse: false,
+  },
+  piano: {
+    bpm: 70,
+    bars: [
+      [57, 62, 64],
+      [53, 57, 62],
+      [50, 57, 62],
+      [48, 53, 55],
+    ],
+    bass: [40, 42, 34, 33],
+    wave: 'triangle',
+    cutoff: 2600,
+    pad: 0.18,
+    detune: 4,
+    drums: false,
+    arp: true,
+    reverse: true,
+  },
+  latin: {
+    bpm: 108,
+    bars: [
+      [52, 56, 59],
+      [48, 52, 55],
+      [55, 59, 62],
+      [53, 57, 60],
+    ],
+    bass: [35, 38, 33, 31],
+    wave: 'square',
+    cutoff: 1600,
+    pad: 0.28,
+    detune: 6,
+    drums: true,
+    arp: true,
   },
 };
 
@@ -159,7 +231,6 @@ export class AudioEngine {
     const end = project.duration;
     const startOffset = this.offset;
     this.scheduledUntil = Math.floor(startOffset / barLen) * barLen;
-
     const scheduleBar = (barIndex: number) => {
       if (!this.ctx || !this.musicGain) return;
       const barStart = barIndex * barLen;
@@ -216,6 +287,9 @@ export class AudioEngine {
         osc.start(t0);
         osc.stop(t0 + barLen * 1.35);
       }
+
+      if (cfg.drums) this.playDrums(barIndex, barLen, when, cfg);
+      if (cfg.arp) this.scheduleArp(barIndex, barLen, when, cfg);
     };
 
     const tick = () => {
@@ -229,6 +303,97 @@ export class AudioEngine {
     };
     tick();
     this.scheduler = window.setInterval(tick, 700);
+  }
+
+  private playDrums(barIndex: number, barLen: number, when: number, cfg: MoodConfig) {
+    if (!this.ctx || !this.musicGain) return;
+    const beat = barLen / 4;
+    const half = beat / 2;
+
+    const kick = (t: number) => {
+      const osc = this.ctx!.createOscillator();
+      const g = this.ctx!.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(70, t);
+      osc.frequency.exponentialRampToValueAtTime(38, t + 0.1);
+      g.gain.setValueAtTime(0.001, t);
+      g.gain.exponentialRampToValueAtTime(0.05, t + 0.04);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+      osc.connect(g);
+      g.connect(this.musicGain);
+      osc.start(t);
+      osc.stop(t + 0.1);
+    };
+    kick(when);
+    kick(when + 2 * half);
+
+    for (let i = 0; i < 8; i++) {
+      const t = when + i * half * 0.5;
+      const isHat = i % 2 === 0;
+      const pitch = isHat ? 900 + Math.random() * 700 : 45 + Math.random() * 15;
+      const dur = isHat ? 0.07 : 0.18;
+      const amp = isHat ? 0.035 : (i === 3 || i === 7 ? 0.09 : 0.05);
+      this.addClick(t, pitch, dur, amp);
+    }
+    if (barIndex % 4 === 2 && !cfg.arp) return;
+  }
+
+  private addClick(at: number, pitch: number, dur: number, amp: number) {
+    if (!this.ctx || !this.musicGain || at < this.ctx.currentTime - 0.01) return;
+    const t0 = Math.max(at, this.ctx.currentTime + 0.002);
+    const osc = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    const bp = this.ctx.createBiquadFilter();
+    const lp = this.ctx.createBiquadFilter();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(pitch, t0);
+    osc.frequency.exponentialRampToValueAtTime(pitch * 0.25, t0 + 0.05);
+    osc.frequency.exponentialRampToValueAtTime(pitch * 0.05, t0 + dur);
+    bp.type = 'highpass';
+    bp.frequency.value = 1200;
+    lp.type = 'lowpass';
+    lp.frequency.value = 3200;
+    g.gain.setValueAtTime(amp * 0.001, t0);
+    g.gain.exponentialRampToValueAtTime(amp, t0 + 0.03);
+    g.gain.exponentialRampToValueAtTime(amp * 0.3, t0 + 0.06);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    osc.connect(bp);
+    bp.connect(lp);
+    lp.connect(g);
+    g.connect(this.musicGain);
+    osc.start(t0);
+    osc.stop(t0 + dur);
+  }
+
+  private scheduleArp(barIndex: number, barLen: number, when: number, cfg: MoodConfig) {
+    if (!this.ctx || !this.musicGain) return;
+    const chord = cfg.bars[((barIndex % cfg.bars.length) + cfg.bars.length) % cfg.bars.length];
+    const notes = [...chord].map((m) => freq(m)).sort((a, b) => (cfg.reverse ? b - a : a - b));
+    const t0 = Math.max(when, this.ctx.currentTime + 0.002);
+    const dur = barLen * 1.05;
+    const steps = Math.max(3, notes.length);
+    const osc = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    const lp = this.ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = cfg.cutoff;
+    osc.type = 'sawtooth';
+    for (let i = 0; i < steps; i++) {
+      const startT = t0 + (dur / steps) * i;
+      const endT = t0 + (dur / steps) * (i + 1);
+      if (i === 0) osc.frequency.setValueAtTime(notes[0], startT);
+      osc.frequency.setValueAtTime(notes[Math.min(i, notes.length - 1)], startT);
+      if (i > 0) osc.frequency.linearRampToValueAtTime(notes[Math.min(i, notes.length - 1)], startT);
+      osc.frequency.linearRampToValueAtTime(notes[Math.min(i + 1, notes.length - 1)], endT);
+    }
+    g.gain.setValueAtTime(0.0002, t0);
+    g.gain.exponentialRampToValueAtTime(0.05, t0 + 0.3);
+    g.gain.exponentialRampToValueAtTime(0.0002, t0 + dur);
+    osc.connect(lp);
+    lp.connect(g);
+    g.connect(this.musicGain);
+    osc.start(t0);
+    osc.stop(t0 + dur);
   }
 
   private getSource(assetId: string): CachedSource | null {

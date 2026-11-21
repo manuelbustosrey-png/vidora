@@ -14,7 +14,21 @@ export type Motion = 'kenburns' | 'parallax' | 'zoom-in' | 'zoom-out' | 'static'
 
 export type TextAnimation = 'fade' | 'slide-up' | 'typewriter' | 'pop' | 'none';
 
-export type MusicMood = 'cinematic' | 'ambient' | 'lofi' | 'epic' | 'electronic';
+export type MusicMood = 'cinematic' | 'ambient' | 'lofi' | 'epic' | 'electronic' | 'rock' | 'jazz' | 'piano' | 'latin';
+
+export const MUSIC_MOODS: MusicMood[] = ['cinematic', 'ambient', 'lofi', 'epic', 'electronic', 'rock', 'jazz', 'piano', 'latin'];
+
+export const MUSIC_MOOD_LABELS: Record<MusicMood, string> = {
+  cinematic: 'Cinematográfico',
+  ambient: 'Ambient',
+  lofi: 'Lo-fi',
+  epic: 'Épico',
+  electronic: 'Electrónico',
+  rock: 'Rock',
+  jazz: 'Jazz',
+  piano: 'Piano / balada',
+  latin: 'Latino',
+};
 
 export type AspectId = '16:9' | '9:16' | '1:1' | '4:5' | '21:9';
 
@@ -220,6 +234,7 @@ export interface DesktopCommand {
     | 'add_scene'
     | 'open_panel'
     | 'set_mood'
+    | 'set_landscape'
     | 'new_project'
     | 'get_state';
   payload?: Record<string, unknown>;

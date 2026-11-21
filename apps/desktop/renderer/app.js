@@ -37,30 +37,86 @@ const state = {
   raf: false
 };
 
+const LANDSCAPES = [
+  { id: 'beach', label: 'Playa', words: ['playa', 'oceano', 'océano', 'mar', 'costa', 'litoral', 'olas', 'arena', 'surf', 'caribe', 'amanecer', 'atardecer'] },
+  { id: 'desert', label: 'Desierto', words: ['desierto', 'dunas', 'sahara', 'wadi', 'acantilado'] },
+  { id: 'forest', label: 'Bosque', words: ['bosque', 'selva', 'jungla', 'verde', 'bosques', 'arbusto', 'cañón'] },
+  { id: 'mountain', label: 'Montaña', words: ['montaña', 'montana', 'montañosa', 'cordillera', 'cumbre', 'pico', 'alpes', 'glaciar', 'nieve', 'nubes bajas'] },
+  { id: 'city', label: 'Ciudad', words: ['ciudad', 'rascacielos', 'edificios', 'skyscraper', 'avenida', 'urbano', 'metrópolis', 'impresión urbana'] },
+  { id: 'space', label: 'Espacio', words: ['espacio', 'galaxia', 'universo', 'cosmos', 'nebulosa', 'planetas', 'estrellas', 'órbita', 'astronauta'] },
+  { id: 'field', label: 'Campo', words: ['pampa', 'llanura', 'pastizal', 'pradera', 'campo', 'ejido', 'colinas', 'granero', 'viñedo', 'trigo', 'fundo'] },
+  { id: 'lake', label: 'Lago', words: ['lago', 'laguna', 'río', 'rio', 'arroyo', 'orilla', 'pantano', 'riberas', 'cuerpo de agua'] },
+  { id: 'storm', label: 'Tormenta', words: ['tormenta', 'tormentas', 'lluvia', 'lluvioso', 'rayo', 'relámpago', 'huracán', 'niebla', 'electrifica'] },
+  { id: 'underwater', label: 'Submarino', words: ['bajo el mar', 'arrecife', 'coral', 'buceo', 'submarino', 'peces', 'acuario', 'sotavento'] },
+  { id: 'volcano', label: 'Volcán', words: ['volcán', 'volcan', 'lava', 'erupción', 'basalto', 'cráter'] },
+  { id: 'winter', label: 'Invierno', words: ['invierno', 'nieve', 'hielo', 'ventisca'] },
+  { id: 'tropical', label: 'Tropical', words: ['tropical', 'palmeras', 'isla', 'hawái', 'maldivas', 'ibiza', 'samba'] },
+  { id: 'night', label: 'Noche', words: ['noche', 'nocturno', 'luna', 'estrellado', 'sereno', 'sin estrellas'] },
+  { id: 'portrait', label: 'Retrato', words: ['retrato', 'rostro', 'persona', 'modelo', 'primer plano'] },
+  { id: 'product', label: 'Producto', words: ['producto', 'marca', 'perfume', 'joya', 'reloj', 'café', 'elegante'] },
+  { id: 'wedding', label: 'Boda', words: ['boda', 'matrimonio', 'pareja', 'romance', 'novia'] },
+];
+
+const LANDING_PALETTE_TEMPLATES = {
+  beach: 'waves', desert: 'aurora', forest: 'aurora', mountain: 'aurora', city: 'grid',
+  space: 'nebula', field: 'aurora', lake: 'waves', storm: 'aurora', underwater: 'aurora',
+  volcano: 'aurora', winter: 'aurora', tropical: 'aurora', night: 'grid', portrait: 'spotlight',
+  product: 'editorial', wedding: 'spotlight'
+};
+
 const TEMPLATE_WORDS = [
-  ['nebula', ['nebulosa', 'espacio', 'galaxia', 'estrellas', 'cosmos']],
-  ['grid', ['neón', 'neon', 'synthwave', 'retro', 'ciudad nocturna', 'cyber']],
-  ['waves', ['océano', 'oceano', 'mar', 'agua', 'olas', 'playa']],
+  ['nebula', ['nebulosa', 'espacio', 'galaxia', 'estrellas', 'cosmos', 'planeta']],
+  ['aurora', ['aurora', 'cielo', 'noche', 'luna', 'lunar', 'aurora boreal']],
+  ['waves', ['océano', 'oceano', 'mar', 'costa', 'olas', 'agua']],
   ['particles', ['partículas', 'particulas', 'polvo', 'magia', 'energía', 'energia']],
-  ['spotlight', ['retrato', 'bokeh', 'foco', 'luz', 'persona', 'rostro']],
-  ['skyline', ['ciudad', 'arquitectura', 'edificio', 'urbano', 'skyline']],
-  ['editorial', ['marca', 'producto', 'editorial', 'moda', 'lujo', 'café', 'cafe']],
-  ['aurora', ['aurora', 'naturaleza', 'bosque', 'montaña', 'montana', 'cielo']]
+  ['spotlight', ['retrato', 'rostro', 'bokeh', 'foco', 'luz', 'persona']],
+  ['skyline', ['ciudad', 'skyscraper', 'edificios', 'urbano']],
+  ['editorial', ['marca', 'producto', 'elegante', 'revista', 'moda']],
+  ['grid', ['neón', 'neon', 'retro', 'cyber', 'digital']]
 ];
 
 const MOOD_WORDS = [
-  ['lofi', ['lofi', 'lo-fi', 'relax', 'chill', 'suave']],
-  ['epic', ['épico', 'epico', 'épica', 'epica', 'dramático', 'dramatico', 'intenso']],
-  ['electronic', ['electrónica', 'electronica', 'techno', 'synth', 'baile']],
-  ['ambient', ['ambiente', 'ambient', 'calma', 'etéreo', 'etereo']],
-  ['cinematic', ['cinematográfico', 'cinematografico', 'cine', 'orquestal', 'emotivo']]
+  ['lofi', ['lofi', 'lo-fi', 'chill', 'relax', 'relajado', 'tranqui']],
+  ['epic', ['épico', 'epico', 'épica', 'epica', 'trailer', 'tráiler', 'batalla', 'guerra', 'intenso', 'grande']],
+  ['electronic', ['electrónica', 'electronica', 'techno', 'house', 'edm', 'club', 'fiesta', 'synth']],
+  ['rock', ['rock', 'guitarra eléctrica', 'metal', 'punk', 'hard rock', 'sólida', 'intenso ritmo']],
+  ['jazz', ['jazz', 'saxofón', 'saxofon', 'bossa nova', 'blues', 'swing']],
+  ['piano', ['piano', 'balada', 'acústico', 'melancólico', 'melancolico', 'intimo', 'íntimo']],
+  ['latin', ['cumbia', 'salsa', 'merengue', 'bachata', 'reggaetón', 'reggaeton', 'tango', 'bolero', 'folklore', 'latina']],
+  ['ambient', ['ambiente', 'ambient', 'calma', 'etéreo', 'etereo', 'sueño', 'calma total']],
+  ['cinematic', ['cinematográfico', 'cinematografico', 'cine', 'emotivo', 'banda sonor']]
 ];
+
+function normText(value) {
+  return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+const MOOD_LABEL = {
+  lofi: 'Lo-fi', epic: 'Épico', electronic: 'Electrónica', rock: 'Rock',
+  jazz: 'Jazz', piano: 'Piano / balada', latin: 'Latino', ambient: 'Ambient', cinematic: 'Cine'
+};
+
+function pick(words, t) {
+  for (const item of Array.from(words)) {
+    const entry = Array.isArray(item) ? item : [item.id, item.words];
+    const [id, variants] = entry;
+    if (!variants) continue;
+    const found = variants.some((w) => new RegExp(`(?:^|\\s)${escapeRegex(normText(String(w)).toLowerCase())}(?=\\s|$)`, 'i').test(t));
+    if (found) return id;
+  }
+  return '';
+}
+
+function escapeRegex(v) {
+  return String(v).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 const ACTION_HELP = {
   set_duration: 'Cambiar duración',
   add_scene: 'Añadir escena',
   add_text: 'Añadir texto',
   set_mood: 'Cambiar música',
+  set_landscape: 'Reformar paisaje',
   play: 'Reproducir',
   pause: 'Pausar',
   export: 'Abrir exportación',
@@ -68,7 +124,7 @@ const ACTION_HELP = {
   generate: 'Generar video'
 };
 
-const PROJECT_ACTIONS = new Set(['set_duration', 'add_scene', 'add_text', 'set_mood', 'play', 'pause', 'export']);
+const PROJECT_ACTIONS = new Set(['set_duration', 'add_scene', 'add_text', 'set_mood', 'set_landscape', 'play', 'pause', 'export']);
 
 /* ---------------- Utilidades de UI ---------------- */
 
@@ -303,33 +359,38 @@ function extractCommands(text) {
 
 /* ---------------- Fallback local sin Ollama ---------------- */
 
-function pick(list, text) {
-  for (const [key, words] of list) {
-    if (words.some((word) => text.includes(word))) return key;
-  }
-  return null;
-}
-
 function titleCase(value) {
   const clean = value.trim().replace(/\s+/g, ' ');
   return clean ? clean[0].toUpperCase() + clean.slice(1) : '';
 }
 
 function localDirector(text, studioState) {
-  const t = text.toLowerCase();
+  const t = normText(text).toLowerCase();
   const commands = [];
   const notes = [];
 
   const explicitMinutes = t.match(/(\d+(?:[.,]\d+)?)\s*(?:min|minuto|minutos)\b/);
-  const wantsDuration = /duraci[oó]n|dura|minuto|min/.test(t);
+  const seconds = t.match(/(\d+(?:[.,]\d+)?)\s*(?:seg|segundo|segundos|s)\b/);
+  const wantsDuration = /(duraci[oó]n|dura|minuto|min|segundo|seg)\b/.test(t);
   if (explicitMinutes && wantsDuration) {
     const minutes = Math.max(0.2, Number(explicitMinutes[1].replace(',', '.')));
     commands.push({ action: 'set_duration', minutes });
     notes.push(`Ajusto la duración a ${minutes} minuto${minutes === 1 ? '' : 's'}.`);
+  } else if (seconds && wantsDuration) {
+    const minutes = Math.max(0.2, Number(seconds[1].replace(',', '.')) / 60);
+    commands.push({ action: 'set_duration', minutes });
+    notes.push(`Ajusto la duración a ${Math.round(minutes * 60)} segundos.`);
+  }
+
+  const land = pick(LANDSCAPES, t);
+  if (land && /(paisaje|escenas?)\b/.test(t)) {
+    const landLabel = LANDSCAPES.find((l) => l.id === land)?.label || land;
+    commands.push({ action: 'set_landscape', landscape: land });
+    notes.push(`Reformo el paisaje a ${landLabel}.`);
   }
 
   if (/escena/.test(t) && /(a[ñn]ade|agrega|inserta|crea|pon)/.test(t)) {
-    const template = pick(TEMPLATE_WORDS, t) || 'aurora';
+    const template = (land && LANDING_PALETTE_TEMPLATES[land]) || pick(TEMPLATE_WORDS, t) || 'aurora';
     const seconds = t.match(/(\d+(?:[.,]\d+)?)\s*(?:seg|segundo|segundos|s)\b/);
     const titleMatch = text.match(/escena\s+(?:de\s+|sobre\s+)?([^.,;]+?)(?:\s+de\s+\d+(?:[.,]\d+)?\s*(?:seg|segundos?|s)\b|$)/i);
     const title = titleMatch ? titleCase(titleMatch[1]) : '';
@@ -346,12 +407,10 @@ function localDirector(text, studioState) {
     }
   }
 
-  if (/(m[uú]sica|ambiente|banda sonora|mood)/.test(t)) {
-    const mood = pick(MOOD_WORDS, t);
-    if (mood) {
-      commands.push({ action: 'set_mood', mood });
-      notes.push(`Cambio la música a ${mood}.`);
-    }
+  const genre = pick(MOOD_WORDS, t);
+  if (genre) {
+    commands.push({ action: 'set_mood', mood: genre });
+    notes.push(`Cambio la música a ${MOOD_LABEL[genre] || genre}.`);
   }
 
   if (/(reproduce|reproducir|play|dale play)/.test(t)) {
@@ -362,7 +421,7 @@ function localDirector(text, studioState) {
     commands.push({ action: 'pause' });
     notes.push('Pauso la reproducción.');
   }
-  if (/(exporta|exportar|renderiza|render|descarga el video)/.test(t)) {
+  if (/(exporta|exportar|renderiza|render|descarga el video|exportame)/.test(t)) {
     commands.push({ action: 'export' });
     notes.push('Abro el panel de exportación en el estudio.');
   }
@@ -372,7 +431,7 @@ function localDirector(text, studioState) {
   }
   if (/(genera|generar|crea un video|haz un video)/.test(t) && !/proyecto/.test(t)) {
     const prompt = text.replace(/.*(?:genera|generar|crea un video|haz un video)\s*(?:sobre\s+|de\s+)?/i, '').trim() || text;
-    commands.push({ action: 'generate', prompt, minutes: explicitMinutes ? Number(explicitMinutes[1].replace(',', '.')) : 1 });
+    commands.push({ action: 'generate', prompt, minutes: explicitMinutes ? Number(explicitMinutes[1].replace(',', '.')) : seconds ? Math.max(0.2, Number(seconds[1].replace(',', '.')) / 60) : 1 });
     notes.push('Lanzo la generación del video con el director local.');
   }
 
@@ -407,7 +466,8 @@ Acciones válidas:
 - set_duration (minutes: número)
 - add_scene (template: aurora|nebula|grid|particles|waves|spotlight|skyline|editorial, title: texto, duration: segundos)
 - add_text (text: texto)
-- set_mood (mood: cinematic|ambient|lofi|epic|electronic)
+- set_mood (mood: cinematic|ambient|lofi|epic|electronic|rock|jazz|piano|latin)
+- set_landscape (landscape: beach|desert|forest|mountain|city|space|field|lake|storm|underwater|volcano|winter|tropical|night|portrait|product|wedding)
 - play, pause, export
 - new_project
 - generate (prompt: texto, minutes: número)
