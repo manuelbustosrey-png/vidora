@@ -45,11 +45,10 @@ Desde la landing puedes escribir una idea, elegir duración (1, 2, 3, 5, 10… m
 
 En el estudio:
 
-- **IA:** genera un storyboard con el director local o con Ollama; chat copiloto con acciones reales; subtítulos automáticos, voz y SEO.
+- **IA:** genera un storyboard con el director local o con Ollama; chat copiloto con acciones reales (duración, escenas, texto, paisajes, géneros, reproducir/pausar/exportar, generar); subtítulos automáticos, voz y SEO.
 - **Medios:** importa imágenes, videos y audio; se guardan en IndexedDB.
-- **Escenas:** añade plantillas procedurales (aurora, nebulosa, grid, partículas, olas, spotlight, skyline, editorial).
-- **Texto:** rótulos animados con tipografías y estilos.
-- **Audio:** música generativa con ambientes cinematográfico, ambient, lo-fi, épico y electrónico; volumen configurable.
+- **Escenas:** añade plantillas procedurales (aurora, nebula, grid, partículas, olas, spotlight, skyline, editorial).
+- **Paisajes y música:** el prompt se lee para detectar un paisaje concreto (playa, desierto, montaña, bosque, ciudad, espacio, pampa, retrato, boda…) y un género musical (rock, jazz, piano, latino, electrónica, épico, ambient, lo-fi…); el storyboard usa paletas y plantillas del paisaje y la música suma ritmos y arpegios.
 - **Timeline:** pistas de video, overlay, texto y audio; arrastrar, recortar, dividir (S), duplicar (Ctrl+D), eliminar (Supr) y zoom.
 - **Inspector:** formato, FPS, duración, resolución, fondo, grano, viñeta y música.
 - **Exportar:** 720p, 1080p, 1440p o 4K; 24/30/60 fps; calidad estándar, alta o ultra; MP4/WebM automático.
